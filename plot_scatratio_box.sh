@@ -1,0 +1,6 @@
+./plot_scatratio_box.py -f ../calipso/cfadLidarsr532_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc -lt 45 -Lt 55 -lg -30 -Lg -21 -m 0 -M 0.08 -rg atlantic_ocean -s Calipso
+./plot_scatratio_box.py -f ../calipso/cfadLidarsr532_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc -lt 50 -Lt 55 -lg 20 -Lg 30 -m 0 -M 0.06 -rg eastern_europe -s Calipso
+./plot_scatratio_box.py -f ../calipso/cfadLidarsr532_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc -lt 33 -Lt 37 -lg 15 -Lg 22 -m 0 -M 0.04 -rg eastern_mediterranean -s Calipso
+./plot_scatratio_box.py -f ../calipso/cfadLidarsr532_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc -lt 19 -Lt 25 -lg 24 -Lg 30 -m 0 -M 0.02 -rg eastern_sahara -s Calipso
+./plot_scatratio_box.py -f ../calipso/cfadLidarsr532_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc -lt 37 -Lt 42.5 -lg 3 -Lg 8.5 -m 0 -M 0.06 -rg western_mediterranean -s Calipso
+./plot_scatratio_box.py -f ../calipso/cfadLidarsr532_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc -lt 20 -Lt 27 -lg -6 -Lg 4 -m 0 -M 0.04 -rg western_sahara -s Calipso

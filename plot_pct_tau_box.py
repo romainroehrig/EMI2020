@@ -12,21 +12,21 @@ import numpy.ma as ma
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-import cartopy.crs as ccrs
-import cartopy.feature as cf
-from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
-
 from myfunctions import *
+
+import config
+from domains import domains
+
 
 
 def generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, reg, sim):
 
     # Where to save images
     # If the directory does not exist, we create it
-    rep0 = './quicklooks'
+    rep0 = config.repout
     if not(os.path.exists(rep0)):
         os.makedirs(rep0)
-    rep1 = os.path.join(rep0, 'period')
+    rep1 = os.path.join(rep0, 'yearavg')
     if not(os.path.exists(rep1)):
         os.makedirs(rep1)
     
@@ -36,15 +36,30 @@ def generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, re
     # Open file as a dataset
     d = nc.Dataset(fin)
     
-    # find coords of nearest point in grid from point (TARGET_LAT, TARGET_LON)
-    target_x = []
-    target_y = []
-    
+    # Prepare histogram axes
+
+    tau_bounds = d['tau_bounds'][:,:]
+    ntau, nb = tau_bounds.shape 
+    plev7_bounds = d['plev7_bounds'][:,:]/100.
+    nplev7, nb = plev7_bounds.shape
+
+    taub = np.zeros(ntau+1)
+    taub[0:ntau] = tau_bounds[0:ntau,0]
+    taub[ntau] = tau_bounds[ntau-1,1]
+
+    xaxis = np.arange(0,ntau+1)
+
+    plev7b = np.zeros(nplev7+1)
+    plev7b[0:ntau] = plev7_bounds[0:nplev7,0]
+    plev7b[ntau] = plev7_bounds[nplev7-1,1]
+
     # Read data, latitude, longitude, time
     lat = d['lat'][:,:]
     lon = d['lon'][:,:]
-    tau = d['tau'][:]
-    plev7 = d['plev7'][:]/100
+
+    # Extract domain (find coords of nearest point in grid from point)
+    target_x = []
+    target_y = []
 
     nlat,nlon = lat.shape
     for x in range(nlon):
@@ -54,20 +69,28 @@ def generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, re
                 target_y.append(y)
     data = d[var][:,:,:,min(target_y):max(target_y),min(target_x):max(target_x)]
     
+    # Close netcdf file
     d.close()
     
-    # Temporal mean
-    data_moy = np.nanmean(data,axis=(0,3,4))
-    
-    #PLOTS
+    # Temporal and spatial mean
+    data_moy = ma.average(data,axis=(0,3,4))
+
+    ###################
     # Plot data
-    a, b = np.meshgrid(plev7, tau)
+    a, b = np.meshgrid(plev7b, xaxis)
     plt.pcolormesh(b,a,data_moy, vmin=vmin, vmax=vmax, cmap=cm.terrain)
-    plt.xlabel('Optical Thickness (m)')
+
+    # X axis
+    plt.xticks(xaxis[:-1],['{0:3.1f}'.format(x) for x in taub[:-1]])
+    plt.xlabel('Optical Thickness (-)')
+    # Y axis
+    plt.ylim(1000,0)
+    plt.yticks(plev7b)
     plt.ylabel('Cloud Top Pressure (hPa)')
-    plt.xscale('log')
-    plt.ylim(900,100)
-    plt.title('Cloud Fraction (%) {} - {} - 2007 to 2016'.format(sim, reg.replace("_", " ").title()))
+    # display grid
+    plt.grid(color='k', linestyle='--', linewidth=1)
+    # Title
+    plt.title('{0} Cloud Fraction (%) \n {1} [2007-2016]'.format(sim, reg.replace("_", " ").title()))
     
     # Add colorbar
     plt.colorbar()
@@ -81,26 +104,20 @@ def generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, re
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", help="path to file", type=str, required=True)
-    parser.add_argument("-lt", help="lat min", type=float, required=True)
-    parser.add_argument("-Lt", help="lat max", type=float, required=True)
-    parser.add_argument("-lg", help="long min", type=float, required=True)
-    parser.add_argument("-Lg", help="long max", type=float, required=True)
-    parser.add_argument("-m", help="min colorbar", type=float, required=True)
-    parser.add_argument("-M", help="max colorbar", type=float, required=True)
-    parser.add_argument("-rg", help="region, underscore-separated lowercase, eg: atlantic_ocean", type=str, required=True)
+    parser.add_argument("-f",  help="path to file", type=str,   required=True)
+    parser.add_argument("-m",  help="min colorbar", type=float, required=False, default=0)
+    parser.add_argument("-M",  help="max colorbar", type=float, required=False, default=8)
+    parser.add_argument("-rg", help="region, underscore-separated lowercase, eg: {}".format(domains.keys()),\
+                        type=str, required=True)
     parser.add_argument("-s", help="simulator", type=str, required=True)
     args = parser.parse_args()
-    print(args.f)
+    #print(args.f)
 
     fin = args.f
-    lat_min = args.lt
-    lat_max = args.Lt
-    lon_min = args.lg
-    lon_max = args.Lg
+    reg = args.rg
+    lat_min, lat_max, lon_min, lon_max = domains[reg]
     vmin = args.m
     vmax = args.M
-    reg = args.rg
     sim = args.s
 
     generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, reg, sim)

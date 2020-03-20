@@ -17,8 +17,6 @@ from myfunctions import *
 import config
 from domains import domains
 
-
-
 def generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, reg, sim):
 
     # Where to save images
@@ -37,7 +35,6 @@ def generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, re
     d = nc.Dataset(fin)
     
     # Prepare histogram axes
-
     tau_bounds = d['tau_bounds'][:,:]
     ntau, nb = tau_bounds.shape 
     plev7_bounds = d['plev7_bounds'][:,:]/100.
@@ -50,10 +47,10 @@ def generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, re
     xaxis = np.arange(0,ntau+1)
 
     plev7b = np.zeros(nplev7+1)
-    plev7b[0:ntau] = plev7_bounds[0:nplev7,0]
-    plev7b[ntau] = plev7_bounds[nplev7-1,1]
+    plev7b[0:nplev7] = plev7_bounds[0:nplev7,0]
+    plev7b[nplev7] = plev7_bounds[nplev7-1,1]
 
-    # Read data, latitude, longitude, time
+    # Read latitude, longitude
     lat = d['lat'][:,:]
     lon = d['lon'][:,:]
 
@@ -85,12 +82,12 @@ def generate_hist_period(fin, lat_min, lat_max, lon_min, lon_max, vmin, vmax, re
     plt.xlabel('Optical Thickness (-)')
     # Y axis
     plt.ylim(1000,0)
-    plt.yticks(plev7b)
+    plt.yticks(plev7b[:-1])
     plt.ylabel('Cloud Top Pressure (hPa)')
     # display grid
     plt.grid(color='k', linestyle='--', linewidth=1)
     # Title
-    plt.title('{0} Cloud Fraction (%) \n {1} [2007-2016]'.format(sim, reg.replace("_", " ").title()))
+    plt.title('{0} Cloud Fraction (%)\n{1} [2007-2016]'.format(sim, reg.replace("_", " ").title()))
     
     # Add colorbar
     plt.colorbar()
@@ -111,7 +108,7 @@ if __name__=="__main__":
                         type=str, required=True)
     parser.add_argument("-s", help="simulator", type=str, required=True)
     args = parser.parse_args()
-    #print(args.f)
+    
 
     fin = args.f
     reg = args.rg

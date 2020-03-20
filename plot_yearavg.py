@@ -16,16 +16,17 @@ import cartopy.crs as ccrs
 import cartopy.feature as cf
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
+import config
 from myfunctions import *
 
 def generate_period(fin, vmin, vmax):
     
     # Where to save images
     # If the directory does not exist, we create it
-    rep0 = './quicklooks'
+    rep0 = config.repout
     if not(os.path.exists(rep0)):
         os.makedirs(rep0)
-    rep1 = os.path.join(rep0, 'period')
+    rep1 = os.path.join(rep0, 'yearavg')
     if not(os.path.exists(rep1)):
         os.makedirs(rep1)
     
@@ -103,7 +104,7 @@ def generate_period(fin, vmin, vmax):
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", help="path to file", type=str, required=True)
-    parser.add_argument("-m", help="min colorbar", type=float, required=True)
+    parser.add_argument("-m", help="min colorbar", type=float, required=True )
     parser.add_argument("-M", help="max colorbar", type=float, required=True)
     args = parser.parse_args()
     

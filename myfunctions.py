@@ -8,6 +8,29 @@ import shapely.geometry as sgeom
 
 import cartopy.crs as ccrs
 
+def find_lon(lon,lons):
+    """
+    Return a list of indices to extract a transect along the longitude lon 
+    """
+
+    d = (lons-lon)*(lons-lon)
+
+    tmp = np.argsort(d,axis=1)
+
+    return tmp[:,0]
+
+def find_lat(lat,lats):
+    """
+    Return a list of indices to extract a transect along the latitude lat
+    """
+
+    d = (lats-lat)*(lats-lat)
+
+    tmp = np.argsort(d,axis=0)
+
+    return tmp[0,:]
+
+
 def find_side(ls, side):
     """
  Given a shapely LineString which is assumed to be rectangular, return the

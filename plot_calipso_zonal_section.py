@@ -17,7 +17,7 @@ from myfunctions import *
 import config
 from sections import zonal_sections
 
-def generate_calipso_zonal_section(fin, ind_lat, vmin, vmax, reg):
+def generate_calipso_zonal_section(fin, lat, vmin, vmax, reg):
 
     # Where to save images
     # If the directory does not exist, we create it
@@ -35,11 +35,18 @@ def generate_calipso_zonal_section(fin, ind_lat, vmin, vmax, reg):
     d = nc.Dataset(fin)
     
     # Read data, latitude, longitude, time
-    data = d[var][:,:,ind_lat,:]
+
+    lats = d['lat'][:,:]
+    sh = lats.shape
+    m = find_lat(lat,lats)
+
+    data = d[var][:,:,:,:]
+    data = data[:,:,m,range(0,sh[1])]
     name = d[var].long_name
     units = d[var].units
-    lon = d['lon'][ind_lat,:]
-    alt40 = d['alt40'][:]
+    lons = d['lon'][:,:]
+    lons = lons[m,range(0,sh[1])]
+    alt40 = d['alt40'][:]/1000. # from m to km
 
     # Close netcdf file
     d.close()
@@ -52,11 +59,12 @@ def generate_calipso_zonal_section(fin, ind_lat, vmin, vmax, reg):
     
     
     # Plot data
-    a, b = np.meshgrid(lon, alt40)
+    a, b = np.meshgrid(lons, alt40)
     plt.pcolormesh(a,b,data_moy, vmin=vmin, vmax=vmax, cmap=cm.gist_ncar)
-    plt.title('{0} ({1}) - {2}\n[2007-2016]'.format(name,units,reg.replace("_", " ").title()))
+    plt.title('{0} ({1})\n{2} (lat={3:3.1f}) [2007-2016]'.format(name,units,reg.replace("_", " ").title(),lat))
     plt.xlabel('Longitude (deg)')
-    plt.ylabel('Altitude (m)')
+    plt.ylim(0,18)
+    plt.ylabel('Altitude (km)')
     
     # Add colorbar
     plt.colorbar()
@@ -71,7 +79,7 @@ def generate_calipso_zonal_section(fin, ind_lat, vmin, vmax, reg):
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", help="path to file", type=str, required=True)
-    #parser.add_argument("-ilat", help="indice fixed latitude for the section", type=float, required=True)
+    #parser.add_argument("-lat", help="latitude", type=float, required=True)
     parser.add_argument("-m", help="min colorbar", type=float, required=False, default=0)
     parser.add_argument("-M", help="max colorbar", type=float, required=False, default=100)
     parser.add_argument("-rg", help="region, underscore-separated lowercase, eg: atlantic_ocean or sahara", type=str, required=True)
@@ -79,9 +87,9 @@ if __name__=="__main__":
 
     fin = args.f
     reg = args.rg
-    ind_lat = zonal_sections[reg]
-    #ind_lat = args.ilat
+    lat = zonal_sections[reg]
+    #lat = args.lat
     vmin = args.m
     vmax = args.M
     
-    generate_calipso_zonal_section(fin, ind_lat, vmin, vmax, reg)
+    generate_calipso_zonal_section(fin, lat, vmin, vmax, reg)

@@ -1,13 +1,13 @@
-# section id, indice lon
+# section id, longitude (degrees east)
 meridian_sections= {
-        "atlantic_ocean": 10,
-        "eastern_europe_sahara": 110,
-        "western_europe_sahara": 58
+        "atlantic_ocean": -20,
+        "eastern_europe_sahara": 30,
+        "western_europe_sahara": 0
         }
 
-# section id, indice lat
+# section id, latitude (degrees north)
 zonal_sections= {
-        "mediterranean": 50,
-        "northen_europe": 85,
-        "sahara": 15
+        "mediterranean": 35,
+        "northern_europe": 50,
+        "sahara": 20
         }

@@ -17,7 +17,7 @@ from myfunctions import *
 import config
 from sections import meridian_sections
 
-def generate_calipso_meridian_section(fin, ind_lon, vmin, vmax, reg):
+def generate_calipso_meridian_section(fin, lon, vmin, vmax, reg):
 
     # Where to save images
     # If the directory does not exist, we create it
@@ -35,11 +35,18 @@ def generate_calipso_meridian_section(fin, ind_lon, vmin, vmax, reg):
     d = nc.Dataset(fin)
     
     # Read data, latitude, longitude, time
-    data = d[var][:,:,:,ind_lon]
+
+    lons = d['lon'][:,:]
+    sh = lons.shape
+    m = find_lon(lon,lons)
+
+    data = d[var][:,:,:,:]
+    data = data[:,:,range(0,sh[0]),m]
     name = d[var].long_name
     units = d[var].units
-    lat = d['lat'][:,ind_lon]
-    alt40 = d['alt40'][:]
+    lats = d['lat'][:,:]
+    lats = lats[range(0,sh[0]),m]
+    alt40 = d['alt40'][:]/1000. # from m to km
 
     # Close netcdf file
     d.close()
@@ -49,11 +56,12 @@ def generate_calipso_meridian_section(fin, ind_lon, vmin, vmax, reg):
     
     #####################
     # Plot data
-    a, b = np.meshgrid(lat, alt40)
+    a, b = np.meshgrid(lats, alt40)
     plt.pcolormesh(a,b,data_moy, vmin=vmin, vmax=vmax, cmap=cm.gist_ncar)
-    plt.title('{0} ({1}) - {2}\n[2007-2016]'.format(name,units, reg.replace("_", " ").title()))
+    plt.title('{0} ({1})\n{2} (lon={3:3.1f}) [2007-2016]'.format(name,units, reg.replace("_", " ").title(),lon))
     plt.xlabel('Latitude (deg)')
-    plt.ylabel('Altitude (m)')
+    plt.ylim(0,18)
+    plt.ylabel('Altitude (km)')
     
     # Add colorbar
     plt.colorbar()
@@ -68,7 +76,7 @@ def generate_calipso_meridian_section(fin, ind_lon, vmin, vmax, reg):
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", help="path to file", type=str, required=True)
-    #parser.add_argument("-ilon", help="indice fixed longitude for the section", type=float, required=True)
+    #parser.add_argument("-lon", help="longitude", type=float, required=True)
     parser.add_argument("-m", help="min colorbar", type=float, required=False, default=0)
     parser.add_argument("-M", help="max colorbar", type=float, required=False, default=100)
     parser.add_argument("-rg", help="region, underscore-separated lowercase, eg: atlantic_ocean or sahara", type=str, required=True)
@@ -76,9 +84,9 @@ if __name__=="__main__":
 
     fin = args.f
     reg = args.rg
-    ind_lon = meridian_sections[reg]
-    #ind_lon = args.ilon
+    lon = meridian_sections[reg]
+    #lon = args.lon
     vmin = args.m
     vmax = args.M
 
-    generate_calipso_meridian_section(fin, ind_lon, vmin, vmax, reg)
+    generate_calipso_meridian_section(fin, lon, vmin, vmax, reg)

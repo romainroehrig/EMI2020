@@ -26,26 +26,26 @@ repout = '$DIROUT'
 EOF
 
 # Maps albedo
-./plot_period.py -f $DIRIN$var_alb$EXT -m 0 -M 1  
-./plot_season.py -f $DIRIN$var_alb$EXT -m 0 -M 1 
+./plot_yearavg.py -f $DIRIN$var_alb$EXT -m 0 -M 1  
+./plot_seasonavg.py -f $DIRIN$var_alb$EXT -m 0 -M 1 
 
 # Maps optical thickness
 for var in $var_tau
 do
-    ./plot_period.py -f $DIRIN$var$EXT -m 0 -M 30
-    ./plot_season.py -f $DIRIN$var$EXT -m 0 -M 30
+    ./plot_yearavg.py -f $DIRIN$var$EXT -m 0 -M 30
+    ./plot_seasonavg.py -f $DIRIN$var$EXT -m 0 -M 30
 done
 
 # Maps top cloud pressure
 for var in $var_pct
 do
-    ./plot_period.py -f $DIRIN$var$EXT -m 300 -M 900
-    ./plot_season.py -f $DIRIN$var$EXT -m 300 -M 900
+    ./plot_yearavg.py -f $DIRIN$var$EXT -m 300 -M 900
+    ./plot_seasonavg.py -f $DIRIN$var$EXT -m 300 -M 900
 done
 
 # Maps cloud fraction
 for var in $var_cl
 do
-    ./plot_period.py -f $DIRIN$var$EXT -m 0 -M 100 
-    ./plot_season.py -f $DIRIN$var$EXT -m 0 -M 100 
+    ./plot_yearavg.py -f $DIRIN$var$EXT -m 0 -M 100 
+    ./plot_seasonavg.py -f $DIRIN$var$EXT -m 0 -M 100 
 done

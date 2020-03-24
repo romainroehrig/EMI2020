@@ -105,7 +105,7 @@ def generate_season(fin, vmin, vmax):
             data_season[i] /= 100 
             units = "hPa"
 
-        ax.set_title('{0} ({1})\n2007 to 2016 - {2}'.format(name,units,title_season[i]))
+        ax.set_title('{0} ({1})\n[2007-2016] - {2}'.format(name,units,title_season[i]))
 
         cs = ax.pcolormesh(lon,lat,data_season[i], transform=ccrs.PlateCarree(),
         			cmap=cm.gist_ncar, vmin=vmin, vmax=vmax,shading='gouraud')

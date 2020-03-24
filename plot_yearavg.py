@@ -86,7 +86,7 @@ def generate_period(fin, vmin, vmax):
         # if pct convert to hPa
         data_moy /= 100 
         units = "hPa"
-    ax.set_title('{0} ({1}) - 2007 to 2016'.format(name,units))
+    ax.set_title('{0} ({1}) - [2007-2016]'.format(name,units))
         
     cs = ax.pcolormesh(lon,lat,data_moy, transform=ccrs.PlateCarree(),
             cmap=cm.gist_ncar, vmin=vmin, vmax=vmax,shading='gouraud')

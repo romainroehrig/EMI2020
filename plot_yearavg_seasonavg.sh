@@ -10,7 +10,7 @@ DIRIN=/Volumes/CNRM/TMP/simulations/EMI2020/AAD50-2.21c_v3/M/
 var_alb='albisccp'
 var_tau='tauisccp tautmodis'
 var_pct='pctisccp pctmodis'
-var_cl='cltisccp cltmodis cllmodis clmmodis clhmodis cltcalipso cllcalipso clmcalipso clhcalipso cltcalipso cltcalipso clt cltl cltm clth'
+var_cl='cltisccp cltmodis cllmodis clmmodis clhmodis cltcalipso cllcalipso clmcalipso clhcalipso cltcalipsoice cltcalipsoliq clt cltl cltm clth'
 
 EXT=_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc
 

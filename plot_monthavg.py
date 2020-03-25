@@ -17,7 +17,7 @@ from var_legend import var_legend
 from domains import domains
 from myfunctions import *
 
-def generate_per_month(fins, lat_min, lat_max, lon_min, lon_max, min_yaxis, max_yaxis, reg):
+def generate_monthavg(fins, lat_min, lat_max, lon_min, lon_max, min_yaxis, max_yaxis, reg, namefig):
     # Where to save images
     # If the directory does not exist, we create it
     rep0 = config.repout
@@ -74,24 +74,39 @@ def generate_per_month(fins, lat_min, lat_max, lon_min, lon_max, min_yaxis, max_
                 
         for j in range(12):
             data_month_moy[j]= data_month[j]/(len(target_x)*10)
-            
-        data_month_moy_array = np.array(data_month_moy)
-    
         
+            
         # Plot data
-        legend.append(var_legend[var])  
-        plt.plot(months,data_month_moy_array,color_list[id])
+        legend.append(var_legend[var])
+        if var == "pctisccp" or var == "pctmodis":
+        # if pct convert to hPa
+            data_month_moy = [x/100 for x in data_month_moy] 
+            units = "hPa"  
+        plt.plot(months,data_month_moy,color_list[id])
     
     plt.legend(legend)
-    plt.title('{} ({}) - {}\n[2007-2016]'.format(name, units, reg.replace("_", " ").title()))
+
+    simulators = ["isccp", "modis", "calipso"]
+    for sim in simulators:
+        var =  var.replace(sim,"")
+    cl_frac = ["clt", "cltl", "cltm", "clth", "cll", "clm", "clh"]
+    for i in range(len(cl_frac)):
+        if var == cl_frac[i]:
+            plt.title('Cloud Fraction ({}) - {}\n[2007-2016]'.format(units, reg.replace("_", " ").title()))
+            plt.ylabel('Cloud Fraction ({})'.format(units))
+        if var == "pct":
+            plt.title('Cloud Top Pressure ({}) - {}\n[2007-2016]'.format(units, reg.replace("_", " ").title()))
+            plt.ylabel('Cloud Top Pressure (hPa)')
+        if var == "tau" or var == "taut":
+            plt.title('Optical Thickness (-) - {}\n[2007-2016]'.format(reg.replace("_", " ").title()))
+            plt.ylabel('Optical Thickness (-)')
+    
     plt.xlabel('Month')
-    plt.ylabel('{} ({})'.format(name, units))
     plt.ylim(min_yaxis, max_yaxis)
     plt.grid()
-    
+
     # Save in png
-    identity = "cl_fraction_{}".format(
-    plot_name = '{}_{}.png'.format(identity, reg)
+    plot_name = '{}_{}.png'.format(namefig, reg)
     plot_path = os.path.join(rep1, plot_name)
     plt.savefig(plot_path, bbox_inches='tight')
     print("Plot saved at {}".format(plot_path))
@@ -100,9 +115,10 @@ def generate_per_month(fins, lat_min, lat_max, lon_min, lon_max, min_yaxis, max_
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", nargs="+", help="list of files to plot", type=str, required=True)
-    parser.add_argument("-m", help="min y-axis", type=float, default=0, required=False )
-    parser.add_argument("-M", help="max y-axis", type=float, default=100, required=False)
+    parser.add_argument("-m", help="min y-axis", type=float, required=True )
+    parser.add_argument("-M", help="max y-axis", type=float, required=True)
     parser.add_argument("-rg", help="region, underscore-separated lowercase, eg: atlantic_ocean", type=str, required=True)
+    parser.add_argument("-namefig", help="name figure to save", type=str, required=True)
     args = parser.parse_args()
     
 
@@ -111,5 +127,6 @@ if __name__=="__main__":
     lat_min, lat_max, lon_min, lon_max = domains[reg]
     min_yaxis = args.m
     max_yaxis = args.M
+    namefig = args.namefig
 
-    generate_per_month(fins, lat_min, lat_max, lon_min, lon_max, min_yaxis, max_yaxis, reg)
+    generate_monthavg(fins, lat_min, lat_max, lon_min, lon_max, min_yaxis, max_yaxis, reg, namefig)

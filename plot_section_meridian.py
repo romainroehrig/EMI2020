@@ -17,7 +17,7 @@ from myfunctions import *
 import config
 from sections import meridian_sections
 
-def generate_meridian_section(fin1, fin2, fin3, lon, vmin, vmax, reg, sim_mod):
+def generate_meridian_section(fins, lon, vmin, vmax, reg, sim_mod):
 
     # Where to save images
     # If the directory does not exist, we create it
@@ -28,48 +28,38 @@ def generate_meridian_section(fin1, fin2, fin3, lon, vmin, vmax, reg, sim_mod):
     if not(os.path.exists(rep1)):
         os.makedirs(rep1)
     
-    file_name1 = os.path.basename(fin1)
-    file_name2 = os.path.basename(fin2)
-    file_name3 = os.path.basename(fin3)
+    data_all = None
 
-    var1 = file_name1.split("_")[0]
-    var2 = file_name2.split("_")[0]    
-    var3 = file_name3.split("_")[0]
+    for id,f in enumerate(fins):
+        file_name = os.path.basename(f)
+        var = file_name.split("_")[0]
     
     # Open file as a dataset
-    d1 = nc.Dataset(fin1)
-    d2 = nc.Dataset(fin2)
-    d3 = nc.Dataset(fin3)
+        d = nc.Dataset(f)
     
     # Read data, latitude, longitude, time
-    time = d1['time'][:]
-    lons = d1['lon'][:,:]
-    sh = lons.shape
-    m = find_lon(lon,lons)
+        time = d['time'][:]
+        lons = d['lon'][:,:]
+        sh = lons.shape
+        m = find_lon(lon,lons)
 
-    data1 = d1[var1][:,:,:]
-    data2 = d2[var2][:,:,:]
-    data3 = d3[var3][:,:,:]
-    
-    data1 = data1[:,range(0,sh[0]),m]
-    data2 = data2[:,range(0,sh[0]),m]
-    data3 = data3[:,range(0,sh[0]),m]
+        data = d[var][:,:,:]
+        data = data[:,range(0,sh[0]),m]
 
-    lats = d1['lat'][:,:]
-    lats = lats[range(0,sh[0]),m]
-    
-    data = np.zeros((len(time),len(range(0,sh[0])),3))
-    
-    for i in range(len(time)):
-        data[i,:,0] = data1[i,:]
-        data[i,:,1] = data2[i,:]
-        data[i,:,2] = data3[i,:]
+        lats = d['lat'][:,:]
+        lats = lats[range(0,sh[0]),m]
         
-    d1.close()
-    d2.close()
-    d3.close()
-       
-    data_moy = np.nanmean(data,axis=0)
+        d.close()
+
+        # resize data as soon as we know the required dimensions
+        if id == 0:
+            data_all = np.zeros((len(time),len(range(0,sh[0])),3))
+    
+        for i in range(len(time)):
+            data_all[i,:,id] = data[i,:]
+            
+        
+    data_moy = np.nanmean(data_all,axis=0)
 
     #######################
     # Plot data
@@ -95,9 +85,7 @@ def generate_meridian_section(fin1, fin2, fin3, lon, vmin, vmax, reg, sim_mod):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f1", help="path to file 1", type=str, required=True)
-    parser.add_argument("-f2", help="path to file 2", type=str, required=True)
-    parser.add_argument("-f3", help="path to file 3", type=str, required=True)
+    parser.add_argument("-f", nargs="+", help="list of files", type=str, required=True)
     #parser.add_argument("-lon", help="longitude", type=float, required=True)
     parser.add_argument("-m", help="min colorbar", type=float, required=False, default=0)
     parser.add_argument("-M", help="max colorbar", type=float, required=False, default=100)
@@ -105,9 +93,7 @@ if __name__=="__main__":
     parser.add_argument("-sm", help="simulator or model", type=str, required=True)
     args = parser.parse_args()
 
-    fin1 = args.f1
-    fin2 = args.f2
-    fin3 = args.f3
+    fins = args.f
     reg = args.rg
     lon = meridian_sections[reg]
     #lon = args.lon
@@ -115,4 +101,4 @@ if __name__=="__main__":
     vmax = args.M
     sim_mod = args.sm
 
-    generate_meridian_section(fin1, fin2, fin3, lon, vmin, vmax, reg, sim_mod)
+    generate_meridian_section(fins, lon, vmin, vmax, reg, sim_mod)

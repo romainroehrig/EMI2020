@@ -37,9 +37,9 @@ EOF
 for sec in $meridian_sections
 do
     echo "Meridian:" $sec
-    ./plot_section_meridian.py -f1 $DIRIN1${calipso[0]}$EXT -f2 $DIRIN1${calipso[1]}$EXT -f3 $DIRIN1${calipso[2]}$EXT -rg $sec -sm calipso
-    ./plot_section_meridian.py -f1 $DIRIN2${modis[0]}$EXT -f2 $DIRIN2${modis[1]}$EXT -f3 $DIRIN2${modis[2]}$EXT -rg $sec -sm modis
-    #./plot_section_zonal.py -f1 $DIRIN${aladin[0]}$EXT -f2 $DIRIN${aladin[1]}$EXT -f3 $DIRIN${aladin[2]}$EXT-rg $sec -sm aladin
+    ./plot_section_meridian.py -f $DIRIN1${calipso[0]}$EXT $DIRIN1${calipso[1]}$EXT $DIRIN1${calipso[2]}$EXT -rg $sec -sm calipso
+    ./plot_section_meridian.py -f $DIRIN2${modis[0]}$EXT $DIRIN2${modis[1]}$EXT $DIRIN2${modis[2]}$EXT -rg $sec -sm modis
+    #./plot_section_zonal.py -f $DIRIN${aladin[0]}$EXT  $DIRIN${aladin[1]}$EXT $DIRIN${aladin[2]}$EXT-rg $sec -sm aladin
 done
 
 # ZONAL
@@ -47,7 +47,7 @@ done
 for sec in $zonal_sections
 do
     echo "Zonal:" $sec
-    ./plot_section_zonal.py -f1 $DIRIN1${calipso[0]}$EXT -f2 $DIRIN1${calipso[1]}$EXT -f3 $DIRIN1${calipso[2]}$EXT -rg $sec -sm calipso
-    ./plot_section_zonal.py -f1 $DIRIN2${modis[0]}$EXT -f2 $DIRIN2${modis[1]}$EXT -f3 $DIRIN2${modis[2]}$EXT -rg $sec -sm modis
-    #./plot_section_zonal.py -f1 $DIRIN${aladin[0]}$EXT -f2 $DIRIN${aladin[1]}$EXT -f3 $DIRIN${aladin[2]}$EXT -rg $sec -sm "aladin"
+    ./plot_section_zonal.py -f $DIRIN1${calipso[0]}$EXT $DIRIN1${calipso[1]}$EXT $DIRIN1${calipso[2]}$EXT -rg $sec -sm calipso
+    ./plot_section_zonal.py -f $DIRIN2${modis[0]}$EXT $DIRIN2${modis[1]}$EXT $DIRIN2${modis[2]}$EXT -rg $sec -sm modis
+    #./plot_section_zonal.py -f $DIRIN${aladin[0]}$EXT $DIRIN${aladin[1]}$EXT $DIRIN${aladin[2]}$EXT -rg $sec -sm "aladin"
 done

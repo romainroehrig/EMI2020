@@ -17,7 +17,7 @@ from myfunctions import *
 import config
 from sections import zonal_sections
 
-def generate_zonal_section(fin1, fin2, fin3, lat, vmin, vmax, reg, sim_mod):
+def generate_zonal_section(fins, lat, vmin, vmax, reg, sim_mod):
 
     # Where to save images
     # If the directory does not exist, we create it
@@ -28,48 +28,37 @@ def generate_zonal_section(fin1, fin2, fin3, lat, vmin, vmax, reg, sim_mod):
     if not(os.path.exists(rep1)):
         os.makedirs(rep1)
 
-    file_name1 = os.path.basename(fin1)
-    file_name2 = os.path.basename(fin2)
-    file_name3 = os.path.basename(fin3)
+    data_all = None
 
-    var1 = file_name1.split("_")[0]
-    var2 = file_name2.split("_")[0]    
-    var3 = file_name3.split("_")[0]
+    for id,f in enumerate(fins):
+        file_name = os.path.basename(f)
+        var = file_name.split("_")[0]
     
-    # Open file as a dataset
-    d1 = nc.Dataset(fin1)
-    d2 = nc.Dataset(fin2)
-    d3 = nc.Dataset(fin3)
+        # Open file as a dataset
+        d = nc.Dataset(f)
     
-    # Read data, time, latitude, longitude
-    time = d1['time'][:]
-    lats = d1['lat'][:,:]
-    sh = lats.shape
-    m = find_lat(lat,lats)
+        # Read data, time, latitude, longitude
+        time = d['time'][:]
+        lats = d['lat'][:,:]
+        sh = lats.shape
+        m = find_lat(lat,lats)
 
-    data1 = d1[var1][:,:,:]
-    data2 = d2[var2][:,:,:]
-    data3 = d3[var3][:,:,:]
-
-    data1 = data1[:,m,range(0,sh[1])]
-    data2 = data2[:,m,range(0,sh[1])]
-    data3 = data3[:,m,range(0,sh[1])]
-
-    lons = d1['lon'][:,:]
-    lons = lons[m,range(0,sh[1])]
+        data = d[var][:,:,:]
+        data = data[:,m,range(0,sh[1])]
     
-    data = np.zeros((len(time),len(range(0,sh[1])),3))
-    
-    for i in range(len(time)):
-        data[i,:,0] = data1[i,:]
-        data[i,:,1] = data2[i,:]
-        data[i,:,2] = data3[i,:]
-        
-    d1.close()
-    d2.close()
-    d3.close()
+        lons = d['lon'][:,:]
+        lons = lons[m,range(0,sh[1])]
+
+        d.close()
+
+        # resize data as soon as we know the required dimensions
+        if id == 0:
+            data_all = np.zeros((len(time),len(range(0,sh[1])),3))
+
+        for i in range(len(time)):
+            data_all[i,:,id] = data[i,:]
        
-    data_moy = np.nanmean(data,axis=0)
+    data_moy = np.nanmean(data_all,axis=0)
 
     #######################
     # Plot data
@@ -96,9 +85,7 @@ def generate_zonal_section(fin1, fin2, fin3, lat, vmin, vmax, reg, sim_mod):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f1", help="path to file 1", type=str, required=True)
-    parser.add_argument("-f2", help="path to file 2", type=str, required=True)
-    parser.add_argument("-f3", help="path to file 3", type=str, required=True)
+    parser.add_argument("-f", nargs="+", help="list of files", type=str, required=True)
     #parser.add_argument("-lat", help="latitude", type=float, required=True)
     parser.add_argument("-m", help="min colorbar", type=float, required=False, default=0)
     parser.add_argument("-M", help="max colorbar", type=float, required=False, default=100)
@@ -106,9 +93,7 @@ if __name__=="__main__":
     parser.add_argument("-sm", help="simulator or model", type=str, required=True)
     args = parser.parse_args()
 
-    fin1 = args.f1
-    fin2 = args.f2
-    fin3 = args.f3
+    fins = args.f
     reg = args.rg
     lat = zonal_sections[reg]
     #lat = args.lat
@@ -116,4 +101,4 @@ if __name__=="__main__":
     vmax = args.M
     sim_mod = args.sm
 
-    generate_zonal_section(fin1, fin2, fin3, lat, vmin, vmax, reg, sim_mod)
+    generate_zonal_section(fins, lat, vmin, vmax, reg, sim_mod)

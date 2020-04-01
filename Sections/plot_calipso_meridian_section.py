@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+import sys
+sys.path.append("../Commons")
 
 import os
 import argparse
@@ -15,9 +17,9 @@ from matplotlib import cm
 from myfunctions import *
 
 import config
-from sections import zonal_sections
+from sections import meridian_sections
 
-def generate_calipso_zonal_section(fin, lat, vmin, vmax, reg):
+def generate_calipso_meridian_section(fin, lon, vmin, vmax, reg):
 
     # Where to save images
     # If the directory does not exist, we create it
@@ -36,16 +38,16 @@ def generate_calipso_zonal_section(fin, lat, vmin, vmax, reg):
     
     # Read data, latitude, longitude, time
 
-    lats = d['lat'][:,:]
-    sh = lats.shape
-    m = find_lat(lat,lats)
+    lons = d['lon'][:,:]
+    sh = lons.shape
+    m = find_lon(lon,lons)
 
     data = d[var][:,:,:,:]
-    data = data[:,:,m,range(0,sh[1])]
+    data = data[:,:,range(0,sh[0]),m]
     name = d[var].long_name
     units = d[var].units
-    lons = d['lon'][:,:]
-    lons = lons[m,range(0,sh[1])]
+    lats = d['lat'][:,:]
+    lats = lats[range(0,sh[0]),m]
     alt40 = d['alt40'][:]/1000. # from m to km
 
     # Close netcdf file
@@ -56,13 +58,10 @@ def generate_calipso_zonal_section(fin, lat, vmin, vmax, reg):
     
     #####################
     # Plot data
-    
-    
-    # Plot data
-    a, b = np.meshgrid(lons, alt40)
+    a, b = np.meshgrid(lats, alt40)
     plt.pcolormesh(a,b,data_moy, vmin=vmin, vmax=vmax, cmap=cm.gist_ncar)
-    plt.title('{0} ({1})\n{2} (lat={3:3.1f}) [2007-2016]'.format(name,units,reg.replace("_", " ").title(),lat))
-    plt.xlabel('Longitude (deg)')
+    plt.title('{0} ({1})\n{2} (lon={3:3.1f}) [2007-2016]'.format(name,units, reg.replace("_", " ").title(),lon))
+    plt.xlabel('Latitude (deg)')
     plt.ylim(0,18)
     plt.ylabel('Altitude (km)')
     
@@ -79,7 +78,7 @@ def generate_calipso_zonal_section(fin, lat, vmin, vmax, reg):
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", help="path to file", type=str, required=True)
-    #parser.add_argument("-lat", help="latitude", type=float, required=True)
+    #parser.add_argument("-lon", help="longitude", type=float, required=True)
     parser.add_argument("-m", help="min colorbar", type=float, required=False, default=0)
     parser.add_argument("-M", help="max colorbar", type=float, required=False, default=100)
     parser.add_argument("-rg", help="region, underscore-separated lowercase, eg: atlantic_ocean or sahara", type=str, required=True)
@@ -87,9 +86,9 @@ if __name__=="__main__":
 
     fin = args.f
     reg = args.rg
-    lat = zonal_sections[reg]
-    #lat = args.lat
+    lon = meridian_sections[reg]
+    #lon = args.lon
     vmin = args.m
     vmax = args.M
-    
-    generate_calipso_zonal_section(fin, lat, vmin, vmax, reg)
+
+    generate_calipso_meridian_section(fin, lon, vmin, vmax, reg)

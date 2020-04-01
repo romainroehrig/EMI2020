@@ -6,7 +6,6 @@
 
 # Directory where to find simulation file
 DIRIN=/Volumes/CNRM/TMP/simulations/EMI2020/AAD50-2.21c_v3/M/
-#DIRIN=../calipso
 
 # File extension
 EXT=_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc

@@ -5,9 +5,7 @@
 #########################
 
 # Directory where to find simulation file
-#DIRIN=/Volumes/CNRM/TMP/simulations/EMI2020/AAD50-2.21c_v3/M/
-DIRIN1=../calipso/
-DIRIN2=../modis/
+DIRIN=/Volumes/CNRM/TMP/simulations/EMI2020/AAD50-2.21c_v3/M/
 
 # File extension
 EXT=_MED-44_ECMWF-ERAINT_evaluation_r1i1p1f2_CNRM-ALADIN64_v1_mon_200701-201612.nc
@@ -37,8 +35,8 @@ EOF
 for sec in $meridian_sections
 do
     echo "Meridian:" $sec
-    ./plot_section_meridian.py -f $DIRIN1${calipso[0]}$EXT $DIRIN1${calipso[1]}$EXT $DIRIN1${calipso[2]}$EXT -rg $sec -sm calipso
-    ./plot_section_meridian.py -f $DIRIN2${modis[0]}$EXT $DIRIN2${modis[1]}$EXT $DIRIN2${modis[2]}$EXT -rg $sec -sm modis
+    ./plot_section_meridian.py -f $DIRIN${calipso[0]}$EXT $DIRIN${calipso[1]}$EXT $DIRIN${calipso[2]}$EXT -rg $sec -sm calipso
+    ./plot_section_meridian.py -f $DIRIN${modis[0]}$EXT $DIRIN${modis[1]}$EXT $DIRIN${modis[2]}$EXT -rg $sec -sm modis
     #./plot_section_zonal.py -f $DIRIN${aladin[0]}$EXT  $DIRIN${aladin[1]}$EXT $DIRIN${aladin[2]}$EXT-rg $sec -sm aladin
 done
 
@@ -47,7 +45,7 @@ done
 for sec in $zonal_sections
 do
     echo "Zonal:" $sec
-    ./plot_section_zonal.py -f $DIRIN1${calipso[0]}$EXT $DIRIN1${calipso[1]}$EXT $DIRIN1${calipso[2]}$EXT -rg $sec -sm calipso
-    ./plot_section_zonal.py -f $DIRIN2${modis[0]}$EXT $DIRIN2${modis[1]}$EXT $DIRIN2${modis[2]}$EXT -rg $sec -sm modis
+    ./plot_section_zonal.py -f $DIRIN${calipso[0]}$EXT $DIRIN${calipso[1]}$EXT $DIRIN${calipso[2]}$EXT -rg $sec -sm calipso
+    ./plot_section_zonal.py -f $DIRIN${modis[0]}$EXT $DIRIN${modis[1]}$EXT $DIRIN${modis[2]}$EXT -rg $sec -sm modis
     #./plot_section_zonal.py -f $DIRIN${aladin[0]}$EXT $DIRIN${aladin[1]}$EXT $DIRIN${aladin[2]}$EXT -rg $sec -sm "aladin"
 done

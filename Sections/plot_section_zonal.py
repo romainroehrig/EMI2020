@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+import sys
+sys.path.append("../Commons")
 
 import os
 import argparse
@@ -15,9 +17,9 @@ from matplotlib import cm
 from myfunctions import *
 
 import config
-from sections import meridian_sections
+from sections import zonal_sections
 
-def generate_meridian_section(fins, lon, vmin, vmax, reg, sim_mod):
+def generate_zonal_section(fins, lat, vmin, vmax, reg, sim_mod):
 
     # Where to save images
     # If the directory does not exist, we create it
@@ -27,53 +29,53 @@ def generate_meridian_section(fins, lon, vmin, vmax, reg, sim_mod):
     rep1 = os.path.join(rep0, 'yearavg')
     if not(os.path.exists(rep1)):
         os.makedirs(rep1)
-    
+
     data_all = None
 
     for id,f in enumerate(fins):
         file_name = os.path.basename(f)
         var = file_name.split("_")[0]
     
-    # Open file as a dataset
+        # Open file as a dataset
         d = nc.Dataset(f)
     
-    # Read data, latitude, longitude, time
+        # Read data, time, latitude, longitude
         time = d['time'][:]
-        lons = d['lon'][:,:]
-        sh = lons.shape
-        m = find_lon(lon,lons)
+        lats = d['lat'][:,:]
+        sh = lats.shape
+        m = find_lat(lat,lats)
 
         data = d[var][:,:,:]
-        data = data[:,range(0,sh[0]),m]
+        data = data[:,m,range(0,sh[1])]
+    
+        lons = d['lon'][:,:]
+        lons = lons[m,range(0,sh[1])]
 
-        lats = d['lat'][:,:]
-        lats = lats[range(0,sh[0]),m]
-        
         d.close()
 
         # resize data as soon as we know the required dimensions
         if id == 0:
-            data_all = np.zeros((len(time),len(range(0,sh[0])),3))
-    
+            data_all = np.zeros((len(time),len(range(0,sh[1])),3))
+
         for i in range(len(time)):
             data_all[i,:,id] = data[i,:]
-            
-        
+       
     data_moy = np.nanmean(data_all,axis=0)
 
     #######################
     # Plot data
+
     plt.figure(figsize=(20,3))
     z = np.array([0,3200,6600,10000])
-    a, b = np.meshgrid(z,lats)
-    plt.pcolormesh(b, a,data_moy,vmin=vmin,vmax=vmax,cmap=cm.gist_ncar)
-    plt.title("Meridian vertical section {0} - Cloud Fraction (%)\n{1} (lon={2:3.1f}) [2007-2016]".format(sim_mod.upper(),reg.replace("_", " ").title(),lon))
-    plt.xlabel("Latitude (deg)")
+    a, b = np.meshgrid(z,lons)
+    plt.pcolormesh(b, a, data_moy,vmin=vmin,vmax=vmax,cmap=cm.gist_ncar)
+    plt.title("Zonal vertical section {0} - Cloud Fraction (%)\n{1} (lat={2:3.1f}) [2007-2016]".format(sim_mod.upper(),reg.replace("_", " ").title(),lat))
+    plt.xlabel("Longitude (deg)")
     plt.ylabel("Altitude (m)")
     
     # Add colorbar
     plt.colorbar()
-
+    
     # Save in png
     var = "cl_frac"
     plot_name = '{}_{}_{}.png'.format(var, reg, sim_mod.lower())
@@ -81,12 +83,12 @@ def generate_meridian_section(fins, lon, vmin, vmax, reg, sim_mod):
     plt.savefig(plot_path, bbox_inches='tight')
     print("Plot saved at {}".format(plot_path))
     plt.close()
-       
+    
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", nargs="+", help="list of files", type=str, required=True)
-    #parser.add_argument("-lon", help="longitude", type=float, required=True)
+    #parser.add_argument("-lat", help="latitude", type=float, required=True)
     parser.add_argument("-m", help="min colorbar", type=float, required=False, default=0)
     parser.add_argument("-M", help="max colorbar", type=float, required=False, default=100)
     parser.add_argument("-rg", help="region, underscore-separated lowercase, eg: atlantic_ocean or sahara", type=str, required=True)
@@ -95,10 +97,10 @@ if __name__=="__main__":
 
     fins = args.f
     reg = args.rg
-    lon = meridian_sections[reg]
-    #lon = args.lon
+    lat = zonal_sections[reg]
+    #lat = args.lat
     vmin = args.m
     vmax = args.M
     sim_mod = args.sm
 
-    generate_meridian_section(fins, lon, vmin, vmax, reg, sim_mod)
+    generate_zonal_section(fins, lat, vmin, vmax, reg, sim_mod)

@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import sys
+sys.path.append("../Commons")
+
 import os
 import argparse
 

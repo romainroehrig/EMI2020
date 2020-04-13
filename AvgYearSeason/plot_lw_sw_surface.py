@@ -3,7 +3,6 @@
 
 import sys
 sys.path.append("../Commons")
-
 import os
 import argparse
 
@@ -22,8 +21,7 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import config
 from myfunctions import *
 
-def generate_yearavg(fin, vmin, vmax):
-    
+def generate_lw_sw_surface_yearavg(fin1, fin2, fin3, fin4, data_type, vmin, vmax):
     # Where to save images
     # If the directory does not exist, we create it
     rep0 = config.repout
@@ -39,23 +37,46 @@ def generate_yearavg(fin, vmin, vmax):
                                  standard_parallels = (37, 37)
                                  )
     
-    file_name = os.path.basename(fin)
-    var = file_name.split("_")[0]
+    file_name1 = os.path.basename(fin1)
+    file_name2 = os.path.basename(fin2)
+    file_name3 = os.path.basename(fin3)
+    file_name4 = os.path.basename(fin4)
+
+    var1 = file_name1.split("_")[0]
+    var2 = file_name2.split("_")[0]
+    var3 = file_name3.split("_")[0]
+    var4 = file_name4.split("_")[0]
     
     # Open file as a dataset
-    d = nc.Dataset(fin)
+    d1 = nc.Dataset(fin1)
+    d2 = nc.Dataset(fin2)
+    d3 = nc.Dataset(fin3)
+    d4 = nc.Dataset(fin4)
     # Read data, latitude, longitude, time
-    data = d[var][:,:,:]
-    name = d[var].long_name
-    units = d[var].units
-    lat = d['lat'][:,:]
-    lon = d['lon'][:,:]
-    d.close()
+    data1 = d1[var1][:,:,:]
+    data2 = d2[var2][:,:,:]
+    data3 = d3[var3][:,:,:]
+    data4 = d4[var4][:,:,:]
+    units = d1[var1].units
+    lat = d1['lat'][:,:]
+    lon = d1['lon'][:,:]
+    d1.close()
+    d2.close()
+    d3.close()
+    d4.close()
+  
+    # Temporal mean - annual
+    data_moy1 = np.nanmean(data1[336:444,:,:],axis=0)
+    data_moy2 = np.nanmean(data2[336:444,:,:],axis=0)
+    data_diff_rs = data_moy2 - data_moy1
     
-    # Temporal mean
-    data_moy = np.nanmean(data,axis=0)
+    data_moy3 = np.nanmean(data3[336:444,:,:],axis=0)
+    data_moy4 = np.nanmean(data4[336:444,:,:],axis=0)
+    data_diff_rscs = data_moy4 - data_moy3
     
-    #PLOTS 
+    r = data_diff_rs - data_diff_rscs
+    
+    #PLOTS
     
     # Domain to be plotted
     bbox = [-24,44,14,56]
@@ -78,41 +99,44 @@ def generate_yearavg(fin, vmin, vmax):
     ax.gridlines(xlocs=xticks, ylocs=yticks,linestyle='--',lw=1,color='dimgrey')
     
     # Label the end-points of the gridlines using the custom tick makers:
-    ax.xaxis.set_major_formatter(LONGITUDE_FORMATTER) 
+    ax.xaxis.set_major_formatter(LONGITUDE_FORMATTER)
     ax.yaxis.set_major_formatter(LATITUDE_FORMATTER)
     
     lambert_xticks(ax, xticks)
     lambert_yticks(ax, yticks)
     
+    ax.set_title('Surface CRE {0} ({1}) - [2007-2016]'.format(data_type, units))
+    
     # Plot data
-    if var == "pctisccp" or var == "pctmodis":
-        # if pct convert to hPa
-        data_moy /= 100 
-        units = "hPa"
-    ax.set_title('{0} ({1}) - [2007-2016]'.format(name,units))
-        
-    cs = ax.pcolormesh(lon,lat,data_moy, transform=ccrs.PlateCarree(),
+    cs = ax.pcolormesh(lon,lat,r, transform=ccrs.PlateCarree(),
             cmap=cm.gist_ncar, vmin=vmin, vmax=vmax,shading='gouraud')
     
     # Add colorbar
     cbar = fig.colorbar(cs, shrink=0.7, orientation='horizontal',pad=0.05)
     
     # Save in png
-    plot_name = '{}.png'.format(var)
+    plot_name = '{}_surface_CRE.png'.format(data_type)
     plot_path = os.path.join(rep1, plot_name)
     plt.savefig(plot_path, bbox_inches='tight')
     print("Plot saved at {}".format(plot_path))
     plt.close()
-    
+
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", help="path to file", type=str, required=True)
+    parser.add_argument("-f1", help="path to file", type=str, required=True)
+    parser.add_argument("-f2", help="path to file", type=str, required=True)
+    parser.add_argument("-f3", help="path to file", type=str, required=True)
+    parser.add_argument("-f4", help="path to file", type=str, required=True)
+    parser.add_argument("-t", help="data type (eg : LW, SW)", type=str, required=True)
     parser.add_argument("-m", help="min colorbar", type=float, required=True )
     parser.add_argument("-M", help="max colorbar", type=float, required=True)
     args = parser.parse_args()
     
-    fin = args.f
+    fin1 = args.f1
+    fin2 = args.f2
+    fin3 = args.f3
+    fin4 = args.f4
     vmin = args.m
     vmax = args.M
-
-    generate_yearavg(fin, vmin, vmax)
+    data_type = args.t
+    generate_lw_sw_surface_yearavg(fin1, fin2, fin3, fin4, data_type, vmin, vmax)

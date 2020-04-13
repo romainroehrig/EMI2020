@@ -1,2 +1,11 @@
+#editor
+.vscode/
+
+#compilation
 *.pyc
+
+# output
 quicklooks/
+
+#config
+config.py

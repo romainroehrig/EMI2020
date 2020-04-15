@@ -28,6 +28,7 @@ cat << EOF > config.py
 repout = '$DIROUT'
 EOF
 
+### ANNUAL ###
 # ISCCP histograms
 
 for dom in $domains
@@ -50,4 +51,22 @@ for dom in $domains
 do 
   echo "CALIPSO:" $dom
   ./plot_hist_scatratio.py -f $FILECALIPSO -rg $dom -s CALIPSO
+done
+
+
+### SEASON ###
+# ISCCP histograms
+
+for dom in $domains
+do
+  echo "ISCCP:" $dom 
+  ./plot_hist_pct_tau_seasonavg.py -f $FILEISCCP -rg $dom -s ISCCP
+done
+
+# MODIS histograms
+
+for dom in $domains
+do
+  echo "MODIS:" $dom 
+  ./plot_hist_pct_tau_seasonavg.py -f $FILEMODIS -rg $dom -s MODIS
 done
